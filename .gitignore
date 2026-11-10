@@ -4,6 +4,7 @@ __pycache__/
 venv/
 .env
 kpi_element_instances.csv
+generated/
 c8run/
 *.log
 .vscode/

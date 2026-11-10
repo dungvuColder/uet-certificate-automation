@@ -69,7 +69,7 @@ Xuất thời gian từng bước ra CSV để tính KPI: `python src/kpi.py`, k
 | MSSV hợp lệ? | Exclusive gateway `=hopLe = true` | Engine |
 | Cán bộ CTSV duyệt | User task, form `duyet-yeu-cau`, assignee `demo` | Tasklist |
 | Đồng ý cấp? | Exclusive gateway `=dongY = true` | Engine |
-| Sinh PDF và gửi kết quả | Service task, job type `gui-ket-qua` | `src/worker.py` (hiện chỉ ghi log; Task #9 làm PDF và email) |
+| Sinh PDF và gửi kết quả | Service task, job type `gui-ket-qua` | `src/worker.py` (luồng demo cũ chỉ ghi log; to-be dùng job riêng để tạo PDF và gửi email) |
 
 Biến của process: `mssv`, `hoTen`, `mucDich` (đầu vào); `hopLe`, `trangThaiHocTap` (worker trả về); `dongY`, `ghiChu` (form duyệt); `soGiay`, `ngayCap` (kết quả).
 
@@ -81,11 +81,26 @@ Cải tiến so với as-is: bỏ bước lãnh đạo ký và văn thư đóng 
 
 Chạy: `python src/deploy.py`, `python src/worker.py`, rồi `python src/start.py 24020001 "Nguyễn Văn An" "Hồ sơ học bổng"` (tự duyệt, bản điện tử). Thêm tham số `ban-cung` để thử nhánh phát bản cứng, hoặc mục đích `"Khác (cần cán bộ xem xét)"` để thử nhánh duyệt tay. `python src/start.py --batch 20` tạo yêu cầu ngẫu nhiên để lấy số liệu KPI. Muốn chạy lại bản demo cũ, đặt `BTL_PROCESS=xac_nhan_sv_demo`.
 
+`src/deploy.py` deploy BPMN demo/to-be cùng các form tương ứng. Worker to-be tạo PDF xác nhận có mã QR trong `generated/pdf/`; có thể đổi thư mục bằng biến môi trường `PDF_OUTPUT_DIR`. Font mặc định tìm Arial trên Windows hoặc DejaVu Sans trên Linux; nếu dùng font khác, đặt `CAMUNDA_PDF_FONT` trỏ tới file `.ttf`. QR chứa mã xác thực; để QR trỏ tới trang tra cứu thật, cấu hình `CERTIFICATE_VERIFY_BASE_URL`.
+
+Worker gửi email bằng SMTP. Điền thông tin SMTP và email nhận vào file `.env` ở thư mục gốc dự án, rồi chạy worker. Worker tự nạp file này khi khởi động:
+
+```powershell
+Copy-Item .env.example .env
+# Mở .env và điền các giá trị thật trước khi chạy worker
+python -m pip install -r requirements.txt
+python src/worker.py
+```
+
+Mẫu `.env.example` dùng STARTTLS trên cổng 587. Với SMTP SSL trực tiếp (thường cổng 465), đặt `SMTP_USE_SSL=true` và `SMTP_STARTTLS=false`. Email cấp giấy có đính kèm PDF; email nhắc quá hạn gửi tới `STAFF_NOTIFICATION_EMAIL`. File `.env` đã được gitignore; không commit thông tin SMTP vào repo.
+
+Email trong `src/sample_db.py` là địa chỉ mẫu `example.com`, không nhận thư. Khi thử nghiệm, điền `EMAIL_OVERRIDE_TO` trong `.env` bằng hộp thư kiểm thử bạn kiểm soát; bỏ trống khi dùng email thật từ dữ liệu sinh viên.
+
 | Job type | Việc | Ghi chú |
 | --- | --- | --- |
 | `tra-cuu-mssv` | Tra CSDL, trả `hopLe`, `canDuyetTay`, `email` | `src/sample_db.py` |
-| `sinh-giay-pdf` | Sinh số giấy, mã xác thực, URL QR | Task #9 dựng PDF thật |
-| `gui-thong-bao` | Gửi thông báo, mẫu theo header `mau` | Task #9 gửi email thật |
+| `sinh-giay-pdf` | Tạo PDF, số giấy, mã xác thực và QR | File trong `generated/pdf/` |
+| `gui-thong-bao` | Gửi email theo header `mau` | SMTP; email cấp giấy đính kèm PDF |
 
 ## Phân công
 

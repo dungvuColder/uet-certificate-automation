@@ -1,0 +1,71 @@
+{
+  "components": [
+    {
+      "text": "### Nộp đơn xin cấp giấy xác nhận sinh viên",
+      "id": "Text_TieuDe",
+      "type": "text"
+    },
+    {
+      "label": "Mã số sinh viên (MSSV)",
+      "id": "Field_MSSV",
+      "type": "textfield",
+      "key": "mssv",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Họ tên",
+      "id": "Field_HoTen",
+      "type": "textfield",
+      "key": "hoTen",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Mục đích xin xác nhận",
+      "values": [
+        { "label": "Hồ sơ học bổng", "value": "Hồ sơ học bổng" },
+        { "label": "Vay vốn ngân hàng", "value": "Vay vốn ngân hàng" },
+        { "label": "Thực tập", "value": "Thực tập" },
+        { "label": "Miễn giảm nghĩa vụ quân sự", "value": "Miễn giảm nghĩa vụ quân sự" },
+        { "label": "Khác (cần cán bộ xem xét)", "value": "Khác (cần cán bộ xem xét)" }
+      ],
+      "id": "Field_MucDich",
+      "type": "select",
+      "key": "mucDich",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Hình thức nhận giấy xác nhận",
+      "values": [
+        {
+          "label": "Bản mềm (PDF qua email)",
+          "value": "ban-mem"
+        },
+        {
+          "label": "Bản cứng (nhận tại phòng CTSV)",
+          "value": "ban-cung"
+        }
+      ],
+      "id": "Field_HinhThuc",
+      "type": "radio",
+      "key": "hinhThuc",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "id": "nop-don-to-be",
+  "type": "default",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "schemaVersion": 19,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  }
+}

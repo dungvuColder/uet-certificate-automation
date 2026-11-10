@@ -1,0 +1,78 @@
+{
+  "components": [
+    {
+      "text": "### Duyệt yêu cầu cấp giấy xác nhận sinh viên",
+      "id": "Text_TieuDe",
+      "type": "text"
+    },
+    {
+      "label": "MSSV",
+      "id": "Field_MSSV",
+      "type": "textfield",
+      "key": "mssv",
+      "readonly": true
+    },
+    {
+      "label": "Họ tên",
+      "id": "Field_HoTen",
+      "type": "textfield",
+      "key": "hoTen",
+      "readonly": true
+    },
+    {
+      "label": "Mục đích xin xác nhận",
+      "id": "Field_MucDich",
+      "type": "textfield",
+      "key": "mucDich",
+      "readonly": true
+    },
+    {
+      "label": "Lý do chuyển duyệt tay",
+      "id": "Field_LyDo",
+      "type": "textfield",
+      "key": "lyDoDuyetTay",
+      "readonly": true
+    },
+    {
+      "label": "Tình trạng học tập (tra cứu tự động)",
+      "id": "Field_TrangThai",
+      "type": "textfield",
+      "key": "trangThaiHocTap",
+      "readonly": true
+    },
+    {
+      "label": "Kết quả xử lý",
+      "values": [
+        {
+          "label": "Duyệt",
+          "value": "duyet"
+        },
+        {
+          "label": "Trả lại",
+          "value": "tra-lai"
+        }
+      ],
+      "id": "Field_HanhDong",
+      "type": "select",
+      "key": "hanhDongDuyet",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Ghi chú / lý do trả lại (bắt buộc khi chọn Trả lại)",
+      "id": "Field_GhiChu",
+      "type": "textarea",
+      "key": "lyDoDuyet"
+    }
+  ],
+  "id": "duyet-yeu-cau-to-be",
+  "type": "default",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "schemaVersion": 19,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.52.0"
+  }
+}

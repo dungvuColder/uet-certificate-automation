@@ -1,100 +1,448 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Defs_ToBe" targetNamespace="http://uet.vnu.edu.vn/btl-khdv/nhom16" exporter="BTL KHDV Nhom 16" exporterVersion="1.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.8.0">
-<bpmn:collaboration id="Collab"><bpmn:participant id="Pool" name="Cấp giấy xác nhận sinh viên (to-be, tự động hóa)" processRef="xac_nhan_sv_tobe" /></bpmn:collaboration>
-<bpmn:process id="xac_nhan_sv_tobe" name="Cấp giấy xác nhận SV (to-be)" isExecutable="true">
-<bpmn:laneSet id="Lanes">
-<bpmn:lane id="Lane1" name="Hệ thống (Camunda 8 + StudentHub)"><bpmn:flowNodeRef>Start</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_TraCuu</bpmn:flowNodeRef><bpmn:flowNodeRef>GW_HopLe</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_BaoTuChoiHL</bpmn:flowNodeRef><bpmn:flowNodeRef>End_KhongHopLe</bpmn:flowNodeRef><bpmn:flowNodeRef>GW_Tay</bpmn:flowNodeRef><bpmn:flowNodeRef>GW_Merge</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_SinhPDF</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_GuiEmail</bpmn:flowNodeRef><bpmn:flowNodeRef>GW_BanCung</bpmn:flowNodeRef><bpmn:flowNodeRef>End_DaCap</bpmn:flowNodeRef></bpmn:lane>
-<bpmn:lane id="Lane2" name="Chuyên viên CTSV"><bpmn:flowNodeRef>Task_Duyet</bpmn:flowNodeRef><bpmn:flowNodeRef>Timer_Nhac</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_NhacViec</bpmn:flowNodeRef><bpmn:flowNodeRef>End_DaNhac</bpmn:flowNodeRef><bpmn:flowNodeRef>GW_DongY</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_BaoTuChoiCB</bpmn:flowNodeRef><bpmn:flowNodeRef>End_TuChoi</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_PhatBanCung</bpmn:flowNodeRef><bpmn:flowNodeRef>End_DaCapBanCung</bpmn:flowNodeRef></bpmn:lane>
-</bpmn:laneSet>
-<bpmn:startEvent id="Start" name="Yêu cầu từ StudentHub"><bpmn:outgoing>F1</bpmn:outgoing></bpmn:startEvent>
-<bpmn:serviceTask id="Task_TraCuu" name="Tra cứu MSSV và phân loại"><bpmn:extensionElements><zeebe:taskDefinition type="tra-cuu-mssv" retries="3" /></bpmn:extensionElements><bpmn:incoming>F1</bpmn:incoming><bpmn:outgoing>F2</bpmn:outgoing></bpmn:serviceTask>
-<bpmn:exclusiveGateway id="GW_HopLe" name="MSSV hợp lệ?" default="F_KhongHopLe"><bpmn:incoming>F2</bpmn:incoming><bpmn:outgoing>F_HopLe</bpmn:outgoing><bpmn:outgoing>F_KhongHopLe</bpmn:outgoing></bpmn:exclusiveGateway>
-<bpmn:serviceTask id="Task_BaoTuChoiHL" name="Thông báo không đủ điều kiện"><bpmn:extensionElements><zeebe:taskDefinition type="gui-thong-bao" retries="3" /><zeebe:taskHeaders><zeebe:header key="mau" value="khong-du-dieu-kien" /></zeebe:taskHeaders></bpmn:extensionElements><bpmn:incoming>F_KhongHopLe</bpmn:incoming><bpmn:outgoing>F3</bpmn:outgoing></bpmn:serviceTask>
-<bpmn:endEvent id="End_KhongHopLe" name="Không đủ điều kiện"><bpmn:incoming>F3</bpmn:incoming></bpmn:endEvent>
-<bpmn:exclusiveGateway id="GW_Tay" name="Cần duyệt tay?" default="F_TuDong"><bpmn:incoming>F_HopLe</bpmn:incoming><bpmn:outgoing>F_Tay</bpmn:outgoing><bpmn:outgoing>F_TuDong</bpmn:outgoing></bpmn:exclusiveGateway>
-<bpmn:exclusiveGateway id="GW_Merge"><bpmn:incoming>F_TuDong</bpmn:incoming><bpmn:incoming>F_DongY</bpmn:incoming><bpmn:outgoing>F7</bpmn:outgoing></bpmn:exclusiveGateway>
-<bpmn:serviceTask id="Task_SinhPDF" name="Sinh PDF có QR xác thực"><bpmn:extensionElements><zeebe:taskDefinition type="sinh-giay-pdf" retries="3" /></bpmn:extensionElements><bpmn:incoming>F7</bpmn:incoming><bpmn:outgoing>F8</bpmn:outgoing></bpmn:serviceTask>
-<bpmn:serviceTask id="Task_GuiEmail" name="Gửi bản điện tử qua email"><bpmn:extensionElements><zeebe:taskDefinition type="gui-thong-bao" retries="3" /><zeebe:taskHeaders><zeebe:header key="mau" value="da-cap-ban-dien-tu" /></zeebe:taskHeaders></bpmn:extensionElements><bpmn:incoming>F8</bpmn:incoming><bpmn:outgoing>F9</bpmn:outgoing></bpmn:serviceTask>
-<bpmn:exclusiveGateway id="GW_BanCung" name="Cần bản cứng?" default="F_ChiDienTu"><bpmn:incoming>F9</bpmn:incoming><bpmn:outgoing>F_ChiDienTu</bpmn:outgoing><bpmn:outgoing>F_CanBanCung</bpmn:outgoing></bpmn:exclusiveGateway>
-<bpmn:endEvent id="End_DaCap" name="Đã cấp (bản điện tử)"><bpmn:incoming>F_ChiDienTu</bpmn:incoming></bpmn:endEvent>
-<bpmn:userTask id="Task_Duyet" name="Duyệt ngoại lệ"><bpmn:extensionElements><zeebe:userTask /><zeebe:formDefinition formId="duyet-yeu-cau" /><zeebe:assignmentDefinition assignee="demo" /></bpmn:extensionElements><bpmn:incoming>F_Tay</bpmn:incoming><bpmn:outgoing>F4</bpmn:outgoing></bpmn:userTask>
-<bpmn:boundaryEvent id="Timer_Nhac" name="Quá 4 giờ" cancelActivity="false" attachedToRef="Task_Duyet"><bpmn:outgoing>F_Nhac</bpmn:outgoing><bpmn:timerEventDefinition><bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT4H</bpmn:timeDuration></bpmn:timerEventDefinition></bpmn:boundaryEvent>
-<bpmn:serviceTask id="Task_NhacViec" name="Nhắc cán bộ, báo trưởng phòng"><bpmn:extensionElements><zeebe:taskDefinition type="gui-thong-bao" retries="3" /><zeebe:taskHeaders><zeebe:header key="mau" value="nhac-duyet" /></zeebe:taskHeaders></bpmn:extensionElements><bpmn:incoming>F_Nhac</bpmn:incoming><bpmn:outgoing>F6</bpmn:outgoing></bpmn:serviceTask>
-<bpmn:endEvent id="End_DaNhac" name="Đã nhắc"><bpmn:incoming>F6</bpmn:incoming></bpmn:endEvent>
-<bpmn:exclusiveGateway id="GW_DongY" name="Đồng ý?" default="F_TuChoi"><bpmn:incoming>F4</bpmn:incoming><bpmn:outgoing>F_DongY</bpmn:outgoing><bpmn:outgoing>F_TuChoi</bpmn:outgoing></bpmn:exclusiveGateway>
-<bpmn:serviceTask id="Task_BaoTuChoiCB" name="Thông báo từ chối kèm lý do"><bpmn:extensionElements><zeebe:taskDefinition type="gui-thong-bao" retries="3" /><zeebe:taskHeaders><zeebe:header key="mau" value="tu-choi" /></zeebe:taskHeaders></bpmn:extensionElements><bpmn:incoming>F_TuChoi</bpmn:incoming><bpmn:outgoing>F5</bpmn:outgoing></bpmn:serviceTask>
-<bpmn:endEvent id="End_TuChoi" name="Bị từ chối"><bpmn:incoming>F5</bpmn:incoming></bpmn:endEvent>
-<bpmn:userTask id="Task_PhatBanCung" name="Phát bản cứng tại phòng CTSV"><bpmn:extensionElements><zeebe:userTask /><zeebe:formDefinition formId="phat-ban-cung" /><zeebe:assignmentDefinition assignee="demo" /></bpmn:extensionElements><bpmn:incoming>F_CanBanCung</bpmn:incoming><bpmn:outgoing>F10</bpmn:outgoing></bpmn:userTask>
-<bpmn:endEvent id="End_DaCapBanCung" name="Đã cấp (kèm bản cứng)"><bpmn:incoming>F10</bpmn:incoming></bpmn:endEvent>
-<bpmn:sequenceFlow id="F1" sourceRef="Start" targetRef="Task_TraCuu"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F2" sourceRef="Task_TraCuu" targetRef="GW_HopLe"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_HopLe" sourceRef="GW_HopLe" targetRef="GW_Tay" name="Có"><bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=hopLe = true</bpmn:conditionExpression></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_KhongHopLe" sourceRef="GW_HopLe" targetRef="Task_BaoTuChoiHL" name="Không"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F3" sourceRef="Task_BaoTuChoiHL" targetRef="End_KhongHopLe"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_Tay" sourceRef="GW_Tay" targetRef="Task_Duyet" name="Có (ngoại lệ)"><bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=canDuyetTay = true</bpmn:conditionExpression></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_TuDong" sourceRef="GW_Tay" targetRef="GW_Merge" name="Không (tự duyệt)"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F4" sourceRef="Task_Duyet" targetRef="GW_DongY"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_DongY" sourceRef="GW_DongY" targetRef="GW_Merge" name="Có"><bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=dongY = true</bpmn:conditionExpression></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_TuChoi" sourceRef="GW_DongY" targetRef="Task_BaoTuChoiCB" name="Không"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F5" sourceRef="Task_BaoTuChoiCB" targetRef="End_TuChoi"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_Nhac" sourceRef="Timer_Nhac" targetRef="Task_NhacViec"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F6" sourceRef="Task_NhacViec" targetRef="End_DaNhac"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F7" sourceRef="GW_Merge" targetRef="Task_SinhPDF"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F8" sourceRef="Task_SinhPDF" targetRef="Task_GuiEmail"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F9" sourceRef="Task_GuiEmail" targetRef="GW_BanCung"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_ChiDienTu" sourceRef="GW_BanCung" targetRef="End_DaCap" name="Không"></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F_CanBanCung" sourceRef="GW_BanCung" targetRef="Task_PhatBanCung" name="Có"><bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=hinhThuc = "ban-cung"</bpmn:conditionExpression></bpmn:sequenceFlow>
-<bpmn:sequenceFlow id="F10" sourceRef="Task_PhatBanCung" targetRef="End_DaCapBanCung"></bpmn:sequenceFlow>
-<bpmn:textAnnotation id="Note1"><bpmn:text>Tự động duyệt khi MSSV đang học và mục đích thuộc danh mục thường gặp; chỉ ngoại lệ mới đến cán bộ.</bpmn:text></bpmn:textAnnotation>
-<bpmn:association id="A_Note1" sourceRef="Task_TraCuu" targetRef="Note1" />
-<bpmn:textAnnotation id="Note2"><bpmn:text>Không còn bước lãnh đạo ký và văn thư đóng dấu: giấy điện tử có QR xác thực; bản cứng chỉ cấp khi sinh viên chọn.</bpmn:text></bpmn:textAnnotation>
-<bpmn:association id="A_Note2" sourceRef="Task_SinhPDF" targetRef="Note2" />
-</bpmn:process>
-<bpmndi:BPMNDiagram id="Diagram_ToBe"><bpmndi:BPMNPlane id="Plane_ToBe" bpmnElement="Collab">
-<bpmndi:BPMNShape id="Pool_di" bpmnElement="Pool" isHorizontal="true"><dc:Bounds x="160" y="80" width="1380" height="570" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Lane1_di" bpmnElement="Lane1" isHorizontal="true"><dc:Bounds x="190" y="80" width="1350" height="300" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Lane2_di" bpmnElement="Lane2" isHorizontal="true"><dc:Bounds x="190" y="380" width="1350" height="270" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Start_di" bpmnElement="Start"><dc:Bounds x="240" y="212" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="205" y="255" width="106" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Task_TraCuu_di" bpmnElement="Task_TraCuu"><dc:Bounds x="300" y="190" width="100" height="80" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="GW_HopLe_di" bpmnElement="GW_HopLe" isMarkerVisible="true"><dc:Bounds x="440" y="205" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="420" y="262" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Task_BaoTuChoiHL_di" bpmnElement="Task_BaoTuChoiHL"><dc:Bounds x="520" y="100" width="100" height="80" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="End_KhongHopLe_di" bpmnElement="End_KhongHopLe"><dc:Bounds x="680" y="122" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="660" y="165" width="76" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="GW_Tay_di" bpmnElement="GW_Tay" isMarkerVisible="true"><dc:Bounds x="560" y="205" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="592" y="258" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="GW_Merge_di" bpmnElement="GW_Merge" isMarkerVisible="true"><dc:Bounds x="800" y="205" width="50" height="50" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Task_SinhPDF_di" bpmnElement="Task_SinhPDF"><dc:Bounds x="890" y="190" width="100" height="80" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Task_GuiEmail_di" bpmnElement="Task_GuiEmail"><dc:Bounds x="1030" y="190" width="100" height="80" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="GW_BanCung_di" bpmnElement="GW_BanCung" isMarkerVisible="true"><dc:Bounds x="1175" y="205" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1207" y="258" width="80" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="End_DaCap_di" bpmnElement="End_DaCap"><dc:Bounds x="1300" y="212" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1278" y="165" width="80" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Task_Duyet_di" bpmnElement="Task_Duyet"><dc:Bounds x="620" y="440" width="100" height="80" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Timer_Nhac_di" bpmnElement="Timer_Nhac"><dc:Bounds x="652" y="502" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="700" y="530" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Task_NhacViec_di" bpmnElement="Task_NhacViec"><dc:Bounds x="620" y="565" width="100" height="80" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="End_DaNhac_di" bpmnElement="End_DaNhac"><dc:Bounds x="782" y="587" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="772" y="630" width="56" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="GW_DongY_di" bpmnElement="GW_DongY" isMarkerVisible="true"><dc:Bounds x="770" y="455" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="700" y="417" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Task_BaoTuChoiCB_di" bpmnElement="Task_BaoTuChoiCB"><dc:Bounds x="880" y="440" width="100" height="80" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="End_TuChoi_di" bpmnElement="End_TuChoi"><dc:Bounds x="1030" y="462" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1015" y="505" width="66" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Task_PhatBanCung_di" bpmnElement="Task_PhatBanCung"><dc:Bounds x="1250" y="440" width="100" height="80" /></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="End_DaCapBanCung_di" bpmnElement="End_DaCapBanCung"><dc:Bounds x="1410" y="462" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1385" y="505" width="86" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
-<bpmndi:BPMNShape id="Note1_di" bpmnElement="Note1"><dc:Bounds x="300" y="300" width="230" height="60" /></bpmndi:BPMNShape>
-<bpmndi:BPMNEdge id="A_Note1_di" bpmnElement="A_Note1"><di:waypoint x="350" y="270" /><di:waypoint x="415" y="300" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNShape id="Note2_di" bpmnElement="Note2"><dc:Bounds x="890" y="300" width="270" height="60" /></bpmndi:BPMNShape>
-<bpmndi:BPMNEdge id="A_Note2_di" bpmnElement="A_Note2"><di:waypoint x="940" y="270" /><di:waypoint x="1025" y="300" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F1_di" bpmnElement="F1"><di:waypoint x="276" y="230" /><di:waypoint x="300" y="230" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F2_di" bpmnElement="F2"><di:waypoint x="400" y="230" /><di:waypoint x="440" y="230" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_HopLe_di" bpmnElement="F_HopLe"><di:waypoint x="490" y="230" /><di:waypoint x="560" y="230" /><bpmndi:BPMNLabel><dc:Bounds x="515" y="212" width="20" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_KhongHopLe_di" bpmnElement="F_KhongHopLe"><di:waypoint x="465" y="205" /><di:waypoint x="465" y="140" /><di:waypoint x="520" y="140" /><bpmndi:BPMNLabel><dc:Bounds x="472" y="170" width="34" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F3_di" bpmnElement="F3"><di:waypoint x="620" y="140" /><di:waypoint x="680" y="140" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_Tay_di" bpmnElement="F_Tay"><di:waypoint x="585" y="255" /><di:waypoint x="585" y="480" /><di:waypoint x="620" y="480" /><bpmndi:BPMNLabel><dc:Bounds x="592" y="330" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_TuDong_di" bpmnElement="F_TuDong"><di:waypoint x="610" y="230" /><di:waypoint x="800" y="230" /><bpmndi:BPMNLabel><dc:Bounds x="665" y="208" width="100" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F4_di" bpmnElement="F4"><di:waypoint x="720" y="480" /><di:waypoint x="770" y="480" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_DongY_di" bpmnElement="F_DongY"><di:waypoint x="795" y="455" /><di:waypoint x="795" y="400" /><di:waypoint x="825" y="400" /><di:waypoint x="825" y="255" /><bpmndi:BPMNLabel><dc:Bounds x="828" y="380" width="20" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_TuChoi_di" bpmnElement="F_TuChoi"><di:waypoint x="820" y="480" /><di:waypoint x="880" y="480" /><bpmndi:BPMNLabel><dc:Bounds x="833" y="462" width="34" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F5_di" bpmnElement="F5"><di:waypoint x="980" y="480" /><di:waypoint x="1030" y="480" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_Nhac_di" bpmnElement="F_Nhac"><di:waypoint x="670" y="538" /><di:waypoint x="670" y="565" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F6_di" bpmnElement="F6"><di:waypoint x="720" y="605" /><di:waypoint x="782" y="605" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F7_di" bpmnElement="F7"><di:waypoint x="850" y="230" /><di:waypoint x="890" y="230" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F8_di" bpmnElement="F8"><di:waypoint x="990" y="230" /><di:waypoint x="1030" y="230" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F9_di" bpmnElement="F9"><di:waypoint x="1130" y="230" /><di:waypoint x="1175" y="230" /></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_ChiDienTu_di" bpmnElement="F_ChiDienTu"><di:waypoint x="1225" y="230" /><di:waypoint x="1300" y="230" /><bpmndi:BPMNLabel><dc:Bounds x="1245" y="212" width="34" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F_CanBanCung_di" bpmnElement="F_CanBanCung"><di:waypoint x="1200" y="255" /><di:waypoint x="1200" y="480" /><di:waypoint x="1250" y="480" /><bpmndi:BPMNLabel><dc:Bounds x="1208" y="380" width="20" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge id="F10_di" bpmnElement="F10"><di:waypoint x="1350" y="480" /><di:waypoint x="1410" y="480" /></bpmndi:BPMNEdge>
-</bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+  xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Defs_ToBe"
+  targetNamespace="http://uet.vnu.edu.vn/btl-khdv/nhom16" exporter="Camunda Modeler"
+  exporterVersion="5.52.0" modeler:executionPlatform="Camunda Cloud"
+  modeler:executionPlatformVersion="8.10.0">
+  <bpmn:collaboration id="Collab">
+    <bpmn:participant id="Pool" name="Cấp giấy xác nhận sinh viên (to-be, tự động hóa)"
+      processRef="xac_nhan_sv_tobe" />
+  </bpmn:collaboration>
+  <bpmn:process id="xac_nhan_sv_tobe" name="Cấp giấy xác nhận SV (to-be)" isExecutable="true">
+    <bpmn:laneSet id="Lanes">
+      <bpmn:lane id="Lane1" name="Hệ thống (Camunda 8 + StudentHub)">
+        <bpmn:flowNodeRef>Start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NopDon</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_TraCuu</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_HopLe</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BaoTuChoiHL</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_KhongHopLe</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_Tay</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_Merge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SinhPDF</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GuiEmail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_BanCung</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_DaCap</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane2" name="Chuyên viên CTSV">
+        <bpmn:flowNodeRef>Task_Duyet</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Timer_Nhac</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NhacViec</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_DaNhac</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_DongY</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BaoTuChoiCB</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_TuChoi</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PhatBanCung</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_DaCapBanCung</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start" name="Yêu cầu từ StudentHub">
+      <bpmn:outgoing>F1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_NopDon" name="Nộp đơn xin giấy xác nhận">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="nop-don-to-be" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>F1</bpmn:incoming>
+      <bpmn:outgoing>F1b</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_TraCuu" name="Tra cứu MSSV và phân loại">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="tra-cuu-mssv" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>F1b</bpmn:incoming>
+      <bpmn:outgoing>F2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="GW_HopLe" name="MSSV hợp lệ?" default="F_KhongHopLe">
+      <bpmn:incoming>F2</bpmn:incoming>
+      <bpmn:outgoing>F_HopLe</bpmn:outgoing>
+      <bpmn:outgoing>F_KhongHopLe</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_BaoTuChoiHL" name="Thông báo không đủ điều kiện">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="gui-thong-bao" retries="3" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="mau" value="khong-du-dieu-kien" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>F_KhongHopLe</bpmn:incoming>
+      <bpmn:outgoing>F3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_KhongHopLe" name="Không đủ điều kiện">
+      <bpmn:incoming>F3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_Tay" name="Cần duyệt tay?" default="F_TuDong">
+      <bpmn:incoming>F_HopLe</bpmn:incoming>
+      <bpmn:outgoing>F_Tay</bpmn:outgoing>
+      <bpmn:outgoing>F_TuDong</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_Merge">
+      <bpmn:incoming>F_TuDong</bpmn:incoming>
+      <bpmn:incoming>F_DongY</bpmn:incoming>
+      <bpmn:outgoing>F7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_SinhPDF" name="Sinh PDF có QR xác thực">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="sinh-giay-pdf" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>F7</bpmn:incoming>
+      <bpmn:outgoing>F8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_GuiEmail" name="Gửi bản điện tử qua email">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="gui-thong-bao" retries="3" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="mau" value="da-cap-ban-dien-tu" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>F8</bpmn:incoming>
+      <bpmn:outgoing>F9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="GW_BanCung" name="Cần bản cứng?" default="F_ChiDienTu">
+      <bpmn:incoming>F9</bpmn:incoming>
+      <bpmn:outgoing>F_ChiDienTu</bpmn:outgoing>
+      <bpmn:outgoing>F_CanBanCung</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_DaCap" name="Đã cấp (bản điện tử)">
+      <bpmn:incoming>F_ChiDienTu</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_Duyet" name="Duyệt ngoại lệ">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="duyet-yeu-cau-to-be" />
+        <zeebe:assignmentDefinition assignee="demo" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>F_Tay</bpmn:incoming>
+      <bpmn:outgoing>F4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="Timer_Nhac" name="Quá 4 giờ" cancelActivity="false"
+      attachedToRef="Task_Duyet">
+      <bpmn:outgoing>F_Nhac</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT4H</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_NhacViec" name="Nhắc cán bộ, báo trưởng phòng">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="gui-thong-bao" retries="3" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="mau" value="nhac-duyet" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>F_Nhac</bpmn:incoming>
+      <bpmn:outgoing>F6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_DaNhac" name="Đã nhắc">
+      <bpmn:incoming>F6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_DongY" name="Đồng ý?" default="F_TuChoi">
+      <bpmn:incoming>F4</bpmn:incoming>
+      <bpmn:outgoing>F_DongY</bpmn:outgoing>
+      <bpmn:outgoing>F_TuChoi</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_BaoTuChoiCB" name="Thông báo từ chối kèm lý do">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="gui-thong-bao" retries="3" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="mau" value="tu-choi" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>F_TuChoi</bpmn:incoming>
+      <bpmn:outgoing>F5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_TuChoi" name="Bị từ chối">
+      <bpmn:incoming>F5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_PhatBanCung" name="Phát bản cứng tại phòng CTSV">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="phat-ban-cung" />
+        <zeebe:assignmentDefinition assignee="demo" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>F_CanBanCung</bpmn:incoming>
+      <bpmn:outgoing>F10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End_DaCapBanCung" name="Đã cấp (kèm bản cứng)">
+      <bpmn:incoming>F10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F1" sourceRef="Start" targetRef="Task_NopDon" />
+    <bpmn:sequenceFlow id="F1b" sourceRef="Task_NopDon" targetRef="Task_TraCuu" />
+    <bpmn:sequenceFlow id="F2" sourceRef="Task_TraCuu" targetRef="GW_HopLe" />
+    <bpmn:sequenceFlow id="F_HopLe" name="Có" sourceRef="GW_HopLe" targetRef="GW_Tay">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=hopLe = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="F_KhongHopLe" name="Không" sourceRef="GW_HopLe"
+      targetRef="Task_BaoTuChoiHL" />
+    <bpmn:sequenceFlow id="F3" sourceRef="Task_BaoTuChoiHL" targetRef="End_KhongHopLe" />
+    <bpmn:sequenceFlow id="F_Tay" name="Có (ngoại lệ)" sourceRef="GW_Tay" targetRef="Task_Duyet">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=canDuyetTay = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="F_TuDong" name="Không (tự duyệt)" sourceRef="GW_Tay" targetRef="GW_Merge" />
+    <bpmn:sequenceFlow id="F4" sourceRef="Task_Duyet" targetRef="GW_DongY" />
+    <bpmn:sequenceFlow id="F_DongY" name="Có" sourceRef="GW_DongY" targetRef="GW_Merge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=hanhDongDuyet = "duyet"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="F_TuChoi" name="Không" sourceRef="GW_DongY" targetRef="Task_BaoTuChoiCB" />
+    <bpmn:sequenceFlow id="F5" sourceRef="Task_BaoTuChoiCB" targetRef="End_TuChoi" />
+    <bpmn:sequenceFlow id="F_Nhac" sourceRef="Timer_Nhac" targetRef="Task_NhacViec" />
+    <bpmn:sequenceFlow id="F6" sourceRef="Task_NhacViec" targetRef="End_DaNhac" />
+    <bpmn:sequenceFlow id="F7" sourceRef="GW_Merge" targetRef="Task_SinhPDF" />
+    <bpmn:sequenceFlow id="F8" sourceRef="Task_SinhPDF" targetRef="Task_GuiEmail" />
+    <bpmn:sequenceFlow id="F9" sourceRef="Task_GuiEmail" targetRef="GW_BanCung" />
+    <bpmn:sequenceFlow id="F_ChiDienTu" name="Không" sourceRef="GW_BanCung" targetRef="End_DaCap" />
+    <bpmn:sequenceFlow id="F_CanBanCung" name="Có" sourceRef="GW_BanCung"
+      targetRef="Task_PhatBanCung">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=hinhThuc = "ban-cung"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="F10" sourceRef="Task_PhatBanCung" targetRef="End_DaCapBanCung" />
+    <bpmn:textAnnotation id="Note1">
+      <bpmn:text>Tự động duyệt khi MSSV đang học và mục đích thuộc danh mục thường gặp; chỉ ngoại lệ
+        mới đến cán bộ.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="A_Note1" sourceRef="Task_TraCuu" targetRef="Note1" />
+    <bpmn:textAnnotation id="Note2">
+      <bpmn:text>Không còn bước lãnh đạo ký và văn thư đóng dấu: giấy điện tử có QR xác thực; bản
+        cứng chỉ cấp khi sinh viên chọn.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="A_Note2" sourceRef="Task_SinhPDF" targetRef="Note2" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_ToBe">
+    <bpmndi:BPMNPlane id="Plane_ToBe" bpmnElement="Collab">
+      <bpmndi:BPMNShape id="Pool_di" bpmnElement="Pool" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1380" height="570" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane2_di" bpmnElement="Lane2" isHorizontal="true">
+        <dc:Bounds x="190" y="380" width="1350" height="270" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane1_di" bpmnElement="Lane1" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1350" height="300" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_di" bpmnElement="Start">
+        <dc:Bounds x="240" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="205" y="255" width="106" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NopDon_di" bpmnElement="Task_NopDon">
+        <dc:Bounds x="300" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_TraCuu_di" bpmnElement="Task_TraCuu">
+        <dc:Bounds x="300" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_HopLe_di" bpmnElement="GW_HopLe" isMarkerVisible="true">
+        <dc:Bounds x="440" y="205" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="420" y="262" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BaoTuChoiHL_di" bpmnElement="Task_BaoTuChoiHL">
+        <dc:Bounds x="520" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_KhongHopLe_di" bpmnElement="End_KhongHopLe">
+        <dc:Bounds x="680" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="660" y="165" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Tay_di" bpmnElement="GW_Tay" isMarkerVisible="true">
+        <dc:Bounds x="560" y="205" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="592" y="258" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Merge_di" bpmnElement="GW_Merge" isMarkerVisible="true">
+        <dc:Bounds x="800" y="205" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SinhPDF_di" bpmnElement="Task_SinhPDF">
+        <dc:Bounds x="890" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GuiEmail_di" bpmnElement="Task_GuiEmail">
+        <dc:Bounds x="1030" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_BanCung_di" bpmnElement="GW_BanCung" isMarkerVisible="true">
+        <dc:Bounds x="1175" y="205" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1207" y="258" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_DaCap_di" bpmnElement="End_DaCap">
+        <dc:Bounds x="1300" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1278" y="165" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Duyet_di" bpmnElement="Task_Duyet">
+        <dc:Bounds x="620" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NhacViec_di" bpmnElement="Task_NhacViec">
+        <dc:Bounds x="620" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_DaNhac_di" bpmnElement="End_DaNhac">
+        <dc:Bounds x="782" y="587" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="772" y="630" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_DongY_di" bpmnElement="GW_DongY" isMarkerVisible="true">
+        <dc:Bounds x="770" y="455" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="700" y="417" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BaoTuChoiCB_di" bpmnElement="Task_BaoTuChoiCB">
+        <dc:Bounds x="880" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_TuChoi_di" bpmnElement="End_TuChoi">
+        <dc:Bounds x="1030" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1015" y="505" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PhatBanCung_di" bpmnElement="Task_PhatBanCung">
+        <dc:Bounds x="1250" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_DaCapBanCung_di" bpmnElement="End_DaCapBanCung">
+        <dc:Bounds x="1410" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1385" y="505" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note1_di" bpmnElement="Note1">
+        <dc:Bounds x="300" y="300" width="230" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note2_di" bpmnElement="Note2">
+        <dc:Bounds x="890" y="300" width="270" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Timer_Nhac_di" bpmnElement="Timer_Nhac">
+        <dc:Bounds x="652" y="502" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="700" y="530" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F1_di" bpmnElement="F1">
+        <di:waypoint x="258" y="212" />
+        <di:waypoint x="258" y="130" />
+        <di:waypoint x="300" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F1b_di" bpmnElement="F1b">
+        <di:waypoint x="350" y="170" />
+        <di:waypoint x="350" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F2_di" bpmnElement="F2">
+        <di:waypoint x="400" y="230" />
+        <di:waypoint x="440" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_HopLe_di" bpmnElement="F_HopLe">
+        <di:waypoint x="490" y="230" />
+        <di:waypoint x="560" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="515" y="212" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_KhongHopLe_di" bpmnElement="F_KhongHopLe">
+        <di:waypoint x="465" y="205" />
+        <di:waypoint x="465" y="140" />
+        <di:waypoint x="520" y="140" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="472" y="170" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F3_di" bpmnElement="F3">
+        <di:waypoint x="620" y="140" />
+        <di:waypoint x="680" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Tay_di" bpmnElement="F_Tay">
+        <di:waypoint x="585" y="255" />
+        <di:waypoint x="585" y="480" />
+        <di:waypoint x="620" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="592" y="330" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_TuDong_di" bpmnElement="F_TuDong">
+        <di:waypoint x="610" y="230" />
+        <di:waypoint x="800" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="665" y="208" width="100" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F4_di" bpmnElement="F4">
+        <di:waypoint x="720" y="480" />
+        <di:waypoint x="770" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_DongY_di" bpmnElement="F_DongY">
+        <di:waypoint x="795" y="455" />
+        <di:waypoint x="795" y="400" />
+        <di:waypoint x="825" y="400" />
+        <di:waypoint x="825" y="255" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="828" y="380" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_TuChoi_di" bpmnElement="F_TuChoi">
+        <di:waypoint x="820" y="480" />
+        <di:waypoint x="880" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="833" y="462" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F5_di" bpmnElement="F5">
+        <di:waypoint x="980" y="480" />
+        <di:waypoint x="1030" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Nhac_di" bpmnElement="F_Nhac">
+        <di:waypoint x="670" y="538" />
+        <di:waypoint x="670" y="565" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F6_di" bpmnElement="F6">
+        <di:waypoint x="720" y="605" />
+        <di:waypoint x="782" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F7_di" bpmnElement="F7">
+        <di:waypoint x="850" y="230" />
+        <di:waypoint x="890" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F8_di" bpmnElement="F8">
+        <di:waypoint x="990" y="230" />
+        <di:waypoint x="1030" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F9_di" bpmnElement="F9">
+        <di:waypoint x="1130" y="230" />
+        <di:waypoint x="1175" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ChiDienTu_di" bpmnElement="F_ChiDienTu">
+        <di:waypoint x="1225" y="230" />
+        <di:waypoint x="1300" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1245" y="212" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_CanBanCung_di" bpmnElement="F_CanBanCung">
+        <di:waypoint x="1200" y="255" />
+        <di:waypoint x="1200" y="480" />
+        <di:waypoint x="1250" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1208" y="380" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F10_di" bpmnElement="F10">
+        <di:waypoint x="1350" y="480" />
+        <di:waypoint x="1410" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="A_Note1_di" bpmnElement="A_Note1">
+        <di:waypoint x="350" y="270" />
+        <di:waypoint x="415" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="A_Note2_di" bpmnElement="A_Note2">
+        <di:waypoint x="940" y="270" />
+        <di:waypoint x="1025" y="300" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
